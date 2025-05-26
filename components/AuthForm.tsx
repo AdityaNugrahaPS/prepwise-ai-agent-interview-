@@ -6,8 +6,11 @@ import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+
 import Link from "next/dist/client/link";
 import { toast } from "sonner";
+import FormField from "./FormField";
+import { useRouter } from "next/navigation";
 
 // Auth Form Schema
 const authFormSchema = (type: FormType) => {
@@ -19,6 +22,7 @@ const authFormSchema = (type: FormType) => {
 };
 
 const AuthForm = ({ type }: { type: FormType }) => {
+  const router = useRouter();
   const formSchema = authFormSchema(type);
 
   // 1. Define your form, from authFormSchema
@@ -34,8 +38,12 @@ const AuthForm = ({ type }: { type: FormType }) => {
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      if(type === "sign-up") {
-        console.log("SIGN-UP",values)
+      if (type === "sign-up") {
+        toast.success('Account created successfully. Please sign in.') // pop up notification
+        router.push('/sign-in') // setelah submit, berpindah ke /sign-in
+      } else {
+        toast.success('Sign successfully.')
+        router.push('/')  // setelah submit, berpindah ke halaman utama (/)
       }
     } catch (error) {
       console.log(error);
@@ -53,7 +61,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
           <img src="/logo.svg" alt="logo" height={32} width={38} />
           <h2 className="text-primary-100 ml-2">PrepWise</h2>
         </div>
-        <h3>Practice job interview with AI</h3>
+        <h3 className="text-center">Practice job interview with AI</h3>
 
         <Form {...form}>
           <form
@@ -61,11 +69,30 @@ const AuthForm = ({ type }: { type: FormType }) => {
             className="w-full space-y-6 mt-4 form"
           >
             {/* Jika bukan sign-in maka munculkan "Name" (sign-up) */}
-            {!isSignIn && <p>Name</p>}
+            {!isSignIn && (
+              <FormField
+                control={form.control}
+                name="name"
+                label="Name"
+                placeholder="Enter your name"
+              />
+            )}
 
-            <p>Email</p>
-            <p>Password</p>
+            <FormField
+              control={form.control}
+              name="email"
+              label="Email"
+              placeholder="Enter your email address"
+              type="email"
+            />
 
+            <FormField
+              control={form.control}
+              name="password"
+              label="Password"
+              placeholder="Enter your password"
+              type="password"
+            />
             <Button className="btn" type="submit">
               {!isSignIn ? "Sign in" : "Create an account"}
             </Button>
